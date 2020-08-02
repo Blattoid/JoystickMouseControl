@@ -26,7 +26,7 @@
         <Label Content="Vertical" HorizontalAlignment="Left" Margin="180,206,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.237,-0.269" Width="84" FontSize="20" Height="46"/>
         <CheckBox x:Name="enable_movement_box" Content="Enable Mouse Control" HorizontalAlignment="Left" Margin="386,334,0,0" VerticalAlignment="Top" Checked="enable_movement_Checked"/>
         <Label Content="Sensitivity" HorizontalAlignment="Left" Margin="419,363,0,0" VerticalAlignment="Top"/>
-        <Slider x:Name="sensitivity_slider" HorizontalAlignment="Left" Margin="371,387,0,0" VerticalAlignment="Top" Width="167" ValueChanged="sensitivity_slider_ValueChanged" Maximum="2000" Minimum="100" Value="1000"/>
+        <Slider x:Name="sensitivity_slider" HorizontalAlignment="Left" Margin="371,387,0,0" VerticalAlignment="Top" Width="167" ValueChanged="sensitivity_slider_ValueChanged" Maximum="10000" Minimum="2000" Value="5000"/>
         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="359,435,0,0" VerticalAlignment="Top" Width="60">
             <TextBlock x:Name="lmb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="LMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>
         </Border>
