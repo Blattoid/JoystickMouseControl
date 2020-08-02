@@ -50,7 +50,7 @@ namespace JoystickMouseControl
             {
                 if (selected_dev != null)
                 {
-                    selected_dev.Poll(); //request data from the joystick
+                    //selected_dev.Poll(); //request data from the joystick
                     //attempt to read the current state
                     JoystickState state;
                     try
@@ -73,21 +73,30 @@ namespace JoystickMouseControl
                         continue;
                     }
 
+                    //Now we have the state of the selected stick, we can use it to move the mouse.
+                    //Values returned are 16 bit (0-65535). 
+
                     //Debug, just shows the thread is active
                     disp.Invoke(() =>
                     {
-                        test.Value = random.Next(1, 50);
+                        debug.Text = string.Format("Raw values\nX:{0}\nY:{1}", state.X, state.Y);
+                        horizontal_bar.Value = state.X;
+                        vertical_bar.Value = state.Y;
                     });
-                }
-                else
-                {
-                    disp.Invoke(() =>
-                    {
-                        test.Value = random.Next(50, 100);
-                    });
+
+                    //convert from unsigned to signed, instead of 0-65535 it goes +/-32768
+                    int x = state.X - (2 ^ 16 / 2);
+                    int y = state.Y - (2 ^ 16 / 2);
+
+                    //divide so this can be used for pixel adjustments to cursor
+                    x /= 1000;
+                    y /= 1000;
+
+                    //TODO: mouse stuff
                 }
 
-                Thread.Sleep(500);
+                //Speed limit to prevent insane CPU usages
+                Thread.Sleep(2);
             }
         }
 

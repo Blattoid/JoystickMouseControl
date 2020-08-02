@@ -3,12 +3,26 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                
         xmlns:local="clr-namespace:JoystickMouseControl"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Closed="Window_Closed">
+        Title="Joystick Configuration" Height="559" Width="629" Closed="Window_Closed">
     <Grid>
-        <ProgressBar x:Name="test" HorizontalAlignment="Left" Height="62" Margin="63,160,0,0" VerticalAlignment="Top" Width="278"/>
-        <ComboBox x:Name="deviceselect" HorizontalAlignment="Left" Margin="59,43,0,0" VerticalAlignment="Top" Width="177" SelectionChanged="deviceselect_SelectionChanged" RenderTransformOrigin="-0.033,0.318"/>
-        <Button x:Name="scanbutton" Content="Scan for devices" HorizontalAlignment="Left" Margin="241,43,0,0" VerticalAlignment="Top" Width="100" Click="ScanButton_Click" RenderTransformOrigin="0.093,2.65" Height="22"/>
+        <ProgressBar x:Name="horizontal_bar" HorizontalAlignment="Left" Height="62" Margin="63,160,0,0" VerticalAlignment="Top" Width="278" Maximum="65535"/>
+        <ComboBox x:Name="deviceselect" HorizontalAlignment="Left" Margin="169,46,0,0" VerticalAlignment="Top" Width="177" SelectionChanged="deviceselect_SelectionChanged" RenderTransformOrigin="-0.033,0.318"/>
+        <Button x:Name="scanbutton" Content="Scan for devices" HorizontalAlignment="Left" Margin="351,46,0,0" VerticalAlignment="Top" Width="100" Click="ScanButton_Click" RenderTransformOrigin="0.093,2.65" Height="22"/>
+        <TextBox x:Name="debug" HorizontalAlignment="Left" Height="149" Margin="422,160,0,0" TextWrapping="Wrap" Text="Awaiting connection..." VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.825,0.221"/>
+        <ProgressBar x:Name="vertical_bar" HorizontalAlignment="Left" Height="62" Margin="99,334,0,0" VerticalAlignment="Top" Width="218" Maximum="65535" RenderTransformOrigin="0.5,0.5">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
+        <Label Content="Horizontal" HorizontalAlignment="Left" Margin="156,123,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.237,-0.269" Width="149" FontSize="20"/>
+        <Label Content="Vertical" HorizontalAlignment="Left" Margin="169,222,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.237,-0.269" Width="84" FontSize="20" Height="46"/>
     </Grid>
 </Window>
