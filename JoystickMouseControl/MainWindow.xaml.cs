@@ -25,7 +25,7 @@ namespace JoystickMouseControl
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly Dispatcher disp = Dispatcher.CurrentDispatcher; //magically allows thread-safe update to controls. I don't understand how or why it works.
+        readonly Dispatcher disp = Dispatcher.CurrentDispatcher; //magically allows thread-safe update to controls.
         readonly Thread background;
         readonly DirectInput input;
         readonly List<DeviceInstance> devices;
@@ -50,17 +50,17 @@ namespace JoystickMouseControl
             {
                 if (selected_dev != null)
                 {
-                    //selected_dev.Poll(); //request data from the joystick
-                    //attempt to read the current state
+                    //selected_dev.Poll(); //Request data from the joystick
+                    //Attempt to read the current state
                     JoystickState state;
                     try
                     {
-                        state = selected_dev.GetCurrentState(); //now read its current state (what the condition of all the axes and buttons are)
+                        state = selected_dev.GetCurrentState(); //Now read its current state (what the condition of all the axes and buttons are)
                     }
                     catch (SharpDXException)
                     {
-                        //in the event of a read fail, the device has been disconnected. 
-                        //set it to null since it doesn't exist anymore
+                        //In the event of a read fail, the device has been disconnected. 
+                        //Set the selected device to null since it doesn't exist anymore
                         selected_dev = null;
                         RescanDevices(); //remove it from the list
                         disp.Invoke(() =>
@@ -84,6 +84,9 @@ namespace JoystickMouseControl
                         vertical_bar.Value = state.Y;
                     });
 
+                    //Don't proceed with moving the mouse if the "Enable mouse control" box is not checked
+                    if (!enable_movement) continue; //needs to be added
+
                     //convert from unsigned to signed, instead of 0-65535 it goes +/-32768
                     int x = state.X - (2 ^ 16 / 2);
                     int y = state.Y - (2 ^ 16 / 2);
@@ -105,6 +108,18 @@ namespace JoystickMouseControl
             RescanDevices();
             deviceselect.IsDropDownOpen = true; //open the list automatically
         }
+        void RescanDevices()
+        {
+            //clear the list of devices and repopulate when scanning, both for the array and the deviceselect list of names
+            var input = new DirectInput();
+            var dev_instances = input.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AttachedOnly);
+
+            devices.Clear();
+            devices.AddRange(dev_instances);
+
+            deviceselect.Items.Clear();
+            foreach (DeviceInstance device in devices) { deviceselect.Items.Add(device.ProductName); }
+        }
 
         private void deviceselect_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -124,19 +139,21 @@ namespace JoystickMouseControl
             }
         }
 
-        void RescanDevices()
+        //Make the values of the options available to the thread
+        bool enable_movement = false;
+        uint sensitivity = 1000;
+        private void enable_movement_Checked(object sender, RoutedEventArgs e)
         {
-            //clear the list of devices and repopulate when scanning, both for the array and the deviceselect list of names
-            var input = new DirectInput();
-            var dev_instances = input.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AttachedOnly);
-
-            devices.Clear();
-            devices.AddRange(dev_instances);
-
-            deviceselect.Items.Clear();
-            foreach (DeviceInstance device in devices) { deviceselect.Items.Add(device.ProductName); }
+            //I had never heard of a "bool?" until now.
+            enable_movement = enable_movement_box.IsChecked.Value;
         }
 
+        private void sensitivity_slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            sensitivity = (uint)sensitivity_slider.Value; //Decimal points are overrated anyway
+        }
+
+        //Guarantees the process terminates. Probably overkill.
         private void Window_Closed(object sender, EventArgs e)
         {
             Environment.Exit(0);
