@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JoystickMouseControl"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="800" Closed="Window_Closed">
     <Grid>
-        <ProgressBar x:Name="test" HorizontalAlignment="Left" Height="62" Margin="181,188,0,0" VerticalAlignment="Top" Width="278"/>
+        <ProgressBar x:Name="test" HorizontalAlignment="Left" Height="62" Margin="63,160,0,0" VerticalAlignment="Top" Width="278"/>
+        <ComboBox x:Name="deviceselect" HorizontalAlignment="Left" Margin="59,43,0,0" VerticalAlignment="Top" Width="177" SelectionChanged="deviceselect_SelectionChanged" RenderTransformOrigin="-0.033,0.318"/>
+        <Button x:Name="scanbutton" Content="Scan for devices" HorizontalAlignment="Left" Margin="241,43,0,0" VerticalAlignment="Top" Width="100" Click="ScanButton_Click" RenderTransformOrigin="0.093,2.65" Height="22"/>
     </Grid>
 </Window>
