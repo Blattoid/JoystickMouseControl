@@ -25,61 +25,12 @@ namespace JoystickMouseControl.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint lmb {
+        public int[] button_map {
             get {
-                return ((uint)(this["lmb"]));
+                return ((int[])(this["button_map"]));
             }
             set {
-                this["lmb"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint rmb {
-            get {
-                return ((uint)(this["rmb"]));
-            }
-            set {
-                this["rmb"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint mmb {
-            get {
-                return ((uint)(this["mmb"]));
-            }
-            set {
-                this["mmb"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint alt_tab {
-            get {
-                return ((uint)(this["alt_tab"]));
-            }
-            set {
-                this["alt_tab"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint shift_alt_tab {
-            get {
-                return ((uint)(this["shift_alt_tab"]));
-            }
-            set {
-                this["shift_alt_tab"] = value;
+                this["button_map"] = value;
             }
         }
     }

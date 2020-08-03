@@ -31,6 +31,7 @@ namespace JoystickMouseControl
         readonly DirectInput input;
         readonly List<DeviceInstance> devices;
         Joystick selected_dev;
+        readonly int[] button_map = new int[] { -1, -1, -1, -1, -1 }; //-1 means unbound, 0 and greater is the index into the button array of joystick state
 
         public MainWindow()
         {
@@ -61,10 +62,23 @@ namespace JoystickMouseControl
                 Grid.SetColumn(text, 0);
                 control_list.Children.Add(text);
 
-                ComboBox list = new ComboBox();
+                ComboBox list = new ComboBox
+                {
+                    Tag = i, //This is used in the event handler to identify the list
+                };
+                list.SelectionChanged += Option_SelectionChanged;
+
                 Grid.SetRow(list, i);
                 Grid.SetColumn(list, 1);
                 control_list.Children.Add(list);
+            }
+
+            //Load the custom button map and apply it if there is one
+            var custom_map = Properties.Settings.Default.button_map;
+            if (custom_map != null)
+            {
+                button_map = custom_map;
+                should_reset_button_config = false;
             }
 
             //Start the thread responsible for all asynchronous operations (moving the mouse, updating UI)
@@ -72,9 +86,15 @@ namespace JoystickMouseControl
             background.Start();
         }
 
-        private void List_Click(object sender, RoutedEventArgs e)
+        private void Option_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            MessageBox.Show(e.OriginalSource.ToString());
+            //Read the selected entry and determine which list was updated.
+            ComboBox list = (ComboBox)sender;
+            int option_id = (int)list.Tag;
+            int entry = list.SelectedIndex-1; //Subtract 1 to account for the "None" option
+            button_map[option_id] = entry; //Update the button map
+            //Copy the button map to settings. This is saved on program exit
+            Properties.Settings.Default.button_map = button_map;
         }
 
         int deviceselect_SelectedIndex = -1;
@@ -115,13 +135,18 @@ namespace JoystickMouseControl
 
                     //Now we have the state of the selected stick, we can use it to move the mouse.
                     //Values returned are 16 bit (0-65535). 
-                    bool lmb = state.Buttons[0];
-                    bool rmb = state.Buttons[1];
-                    bool mmb = state.Buttons[2];
+
+                    //Read the joystick buttons according to the button map, but only if the stored value is greater than -1
+                    bool lmb = button_map[0] < 0 ? false : state.Buttons[button_map[0]];
+                    bool rmb = button_map[1] < 0 ? false : state.Buttons[button_map[1]];
+                    bool mmb = button_map[2] < 0 ? false : state.Buttons[button_map[2]];
 
                     //Update UI controls
                     disp.Invoke(() =>
                     {
+                        if (!enable_movement) //Some instructions once the joystick is selected
+                            debug.Text = "Connected.\n\nSetup button controls in the left panel, then enable mouse control when ready.";
+
                         horizontal_bar.Value = state.X;
                         vertical_bar.Value = state.Y;
                         lmb_indicator.Background = lmb ? new SolidColorBrush(Color.FromArgb(255, 6, 176, 37)) : SystemColors.ControlLightBrush;
@@ -177,6 +202,7 @@ namespace JoystickMouseControl
             foreach (DeviceInstance device in devices) { deviceselect.Items.Add(device.ProductName); }
         }
 
+        bool should_reset_button_config = true; //Only set to false when the first device is selected, or if the constructor loads settings
         private void deviceselect_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             //Update variables when choosing a device
@@ -197,17 +223,20 @@ namespace JoystickMouseControl
                 //Update the listboxes in the control list to reflect the capabilities of the selected stick
                 foreach (UIElement thing in control_list.Children)
                 {
-                    DEBUG += "\n" + thing.GetType().ToString() + "\n";
                     if (thing.GetType().ToString().Contains("ComboBox"))
                     {
                         ComboBox list = (ComboBox)thing;
                         list.Items.Clear();
+                        list.Items.Add("None");
+                        if (should_reset_button_config) list.SelectedIndex = 0; //Automatically select none, but only on the first run.
+                        else list.SelectedIndex = button_map[(int)list.Tag]+1;
                         for (int i = 1; i <= selected_dev.Capabilities.ButtonCount; i++)
                         {
                             list.Items.Add(i.ToString());
                         }
                     }
                 }
+                should_reset_button_config = false;
             }
         }
 
@@ -224,9 +253,10 @@ namespace JoystickMouseControl
             sensitivity = sensitivity_slider.Value;
         }
 
-        //Guarantees the process terminates. Probably overkill.
+        //Saves the config then terminates the process
         private void Window_Closed(object sender, EventArgs e)
         {
+            Properties.Settings.Default.Save();
             Environment.Exit(0);
         }
 
