@@ -45,11 +45,16 @@ namespace JoystickMouseControl
         }
 
         int deviceselect_SelectedIndex = -1;
+        double x = 0;
+        double y = 0;
         private void ThreadCode()
         {
             Random random = new Random();
             while (true)
             {
+                //Speed limit to prevent insane CPU usages
+                Thread.Sleep(2);
+
                 if (selected_dev != null)
                 {
                     //selected_dev.Poll(); //Request data from the joystick
@@ -84,37 +89,39 @@ namespace JoystickMouseControl
                     //Update UI controls
                     /*disp.Invoke(() =>
                     {
-                        debug.Text = string.Format("Raw values\nX:{0}\nY:{1}", state.X, state.Y);
+                        //debug.Text = string.Format("Raw values\nX:{0}\nY:{1}", state.X, state.Y);
                         horizontal_bar.Value = state.X;
                         vertical_bar.Value = state.Y;
                         
                     });*/
-
-                    //lmb_indicator.Background = lmb?Brush.
+                    //TODO: Make indicators change colour
+                    //lmb_indicator.Background = lmb?Brush. //6,176,37
 
                     //Don't proceed with moving the mouse if the "Enable mouse control" box is not checked
                     if (!enable_movement) continue;
 
-                    //convert from unsigned to signed, instead of 0-65535 it goes +/-32768
-                    int x = state.X - (int)Math.Pow(2,16) / 2;
-                    int y = state.Y - (int)Math.Pow(2,16) / 2;
+                    //Read raw x/y values (0 to 65535) and convert them to signed integers (-32768 to 32768)
+                    double raw_x = state.X - (int)Math.Pow(2, 16) / 2;
+                    double raw_y = state.Y - (int)Math.Pow(2, 16) / 2;
 
-                    //divide so this can be used for pixel adjustments to cursor
-                    x /= 10000 - sensitivity;
-                    y /= 10000 - sensitivity;
+                    //Adjust for sensitivity. //TODO: Make this a logarithmic curve //TODO_2: Get good at mathematics
+                    x += raw_x / (10000 - sensitivity);
+                    y += raw_y / (10000 - sensitivity);
 
                     //Debug, shows raw joystick data
                     disp.Invoke(() =>
                     {
-                        debug.Text = string.Format("Raw values\nX:{0}\nY:{1}\n\nx:{2}\ny:{3}\nLMB:{4}\nMMB:{5}\nRMB:{6}", state.X, state.Y, x, y, lmb, mmb, rmb);
+                        debug.Text = string.Format("Raw values\nX:{0}\nY:{1}\n\nraw_x:{2}\nraw_y:{3}\n\nx:{4}\ny:{5}", state.X, state.Y, raw_x, raw_y, x, y);
                     });
 
-                    //Finally, move the mouse.
-                    SendMouseData(x, y);
-                }
+                    //Get delta x and delta y from the whole numbers in x and y but leave the remainders behind. The remainders accumulate to make movement smoother
+                    int dx = (int)x;
+                    x -= dx;
+                    int dy = (int)y;
+                    y -= dy;
 
-                //Speed limit to prevent insane CPU usages
-                Thread.Sleep(2);
+                    SendMouseData(dx, dy);
+                }
             }
         }
 
@@ -156,7 +163,7 @@ namespace JoystickMouseControl
 
         //Make the values of the options available to the thread
         bool enable_movement = false;
-        int sensitivity = 1000;
+        double sensitivity = 1000;
         private void enable_movement_Checked(object sender, RoutedEventArgs e)
         {
             //I had never heard of a "bool?" until now.
@@ -165,7 +172,7 @@ namespace JoystickMouseControl
 
         private void sensitivity_slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            sensitivity = (int)sensitivity_slider.Value; //Decimal points are overrated anyway
+            sensitivity = sensitivity_slider.Value;
         }
 
         //Guarantees the process terminates. Probably overkill.
@@ -183,12 +190,12 @@ namespace JoystickMouseControl
 
         private const int MOUSEEVENTF_LEFTDOWN = 0x02;
         private const int MOUSEEVENTF_LEFTUP = 0x04;
-        
+
         private const int MOUSEEVENTF_RIGHTDOWN = 0x08;
         private const int MOUSEEVENTF_RIGHTUP = 0x10;
 
         private const int MOUSEEVENTF_MIDDLEDOWN = 0x20;
-        private const int MOUSEEVENTF_MIDDLEUP= 0x40;
+        private const int MOUSEEVENTF_MIDDLEUP = 0x40;
 
         bool lmb_prev;
         bool mmb_prev;

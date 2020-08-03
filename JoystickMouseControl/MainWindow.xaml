@@ -11,7 +11,7 @@
         <ProgressBar x:Name="horizontal_bar" HorizontalAlignment="Left" Height="62" Margin="74,144,0,0" VerticalAlignment="Top" Width="278" Maximum="65535"/>
         <ComboBox x:Name="deviceselect" HorizontalAlignment="Left" Margin="163,44,0,0" VerticalAlignment="Top" Width="177" SelectionChanged="deviceselect_SelectionChanged" RenderTransformOrigin="-0.033,0.318"/>
         <Button x:Name="scanbutton" Content="Scan for devices" HorizontalAlignment="Left" Margin="345,44,0,0" VerticalAlignment="Top" Width="100" Click="ScanButton_Click" RenderTransformOrigin="0.093,2.65" Height="22"/>
-        <TextBox x:Name="debug" HorizontalAlignment="Left" Height="149" Margin="403,130,0,0" TextWrapping="Wrap" Text="Awaiting connection..." VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.825,0.221"/>
+        <TextBox x:Name="debug" HorizontalAlignment="Left" Height="149" Margin="371,130,0,0" TextWrapping="Wrap" Text="Awaiting connection..." VerticalAlignment="Top" Width="204" RenderTransformOrigin="0.825,0.221"/>
         <ProgressBar x:Name="vertical_bar" HorizontalAlignment="Left" Height="62" Margin="110,318,0,0" VerticalAlignment="Top" Width="218" Maximum="65535" RenderTransformOrigin="0.5,0.5">
             <ProgressBar.RenderTransform>
                 <TransformGroup>
@@ -26,7 +26,7 @@
         <Label Content="Vertical" HorizontalAlignment="Left" Margin="180,206,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.237,-0.269" Width="84" FontSize="20" Height="46"/>
         <CheckBox x:Name="enable_movement_box" Content="Enable Mouse Control" HorizontalAlignment="Left" Margin="386,334,0,0" VerticalAlignment="Top" Checked="enable_movement_Checked"/>
         <Label Content="Sensitivity" HorizontalAlignment="Left" Margin="419,363,0,0" VerticalAlignment="Top"/>
-        <Slider x:Name="sensitivity_slider" HorizontalAlignment="Left" Margin="371,387,0,0" VerticalAlignment="Top" Width="167" ValueChanged="sensitivity_slider_ValueChanged" Maximum="10000" Minimum="2000" Value="5000"/>
+        <Slider x:Name="sensitivity_slider" HorizontalAlignment="Left" Margin="371,387,0,0" VerticalAlignment="Top" Width="167" ValueChanged="sensitivity_slider_ValueChanged" Maximum="8000" Minimum="100" Value="2000"/>
         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="359,435,0,0" VerticalAlignment="Top" Width="60">
             <TextBlock x:Name="lmb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="LMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>
         </Border>
