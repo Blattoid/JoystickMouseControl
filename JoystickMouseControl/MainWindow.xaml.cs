@@ -18,7 +18,6 @@ using SharpDX;
 using SharpDX.DirectInput;
 using System.Windows.Threading;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 namespace JoystickMouseControl
 {
@@ -27,7 +26,7 @@ namespace JoystickMouseControl
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly Dispatcher disp = Dispatcher.CurrentDispatcher; //magically allows thread-safe update to controls.
+        readonly Dispatcher disp = Dispatcher.CurrentDispatcher; //Magically allows thread-safe update to controls.
         readonly Thread background;
         readonly DirectInput input;
         readonly List<DeviceInstance> devices;
@@ -37,11 +36,45 @@ namespace JoystickMouseControl
         {
             InitializeComponent();
 
+            //Initialise device list and DirectInput object
             devices = new List<DeviceInstance>();
             input = new DirectInput();
 
+            //Setup the control list
+            control_list.ShowGridLines = false;
+            for (int i = 0; i < 5; i++)
+            {
+                RowDefinition row = new RowDefinition { Height = GridLength.Auto };
+                control_list.RowDefinitions.Add(row);
+            }
+            for (int i = 0; i < 2; i++)
+            {
+                ColumnDefinition column = new ColumnDefinition { Width = GridLength.Auto };
+                control_list.ColumnDefinitions.Add(new ColumnDefinition());
+            }
+            //Add the controls to each cell
+            string[] tooltips = new string[] { "LMB", "RMB", "MMB", "Alt-Tab", "Shift-\nAlt-Tab" };
+            for (int i = 0; i < 5; i++)
+            {
+                Label text = new Label { Content = tooltips[i] };
+                Grid.SetRow(text, i);
+                Grid.SetColumn(text, 0);
+                control_list.Children.Add(text);
+
+                ComboBox list = new ComboBox();
+                Grid.SetRow(list, i);
+                Grid.SetColumn(list, 1);
+                control_list.Children.Add(list);
+            }
+
+            //Start the thread responsible for all asynchronous operations (moving the mouse, updating UI)
             background = new Thread(new ThreadStart(ThreadCode));
             background.Start();
+        }
+
+        private void List_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(e.OriginalSource.ToString());
         }
 
         int deviceselect_SelectedIndex = -1;
@@ -69,20 +102,19 @@ namespace JoystickMouseControl
                         //In the event of a read fail, the device has been disconnected. 
                         //Set the selected device to null since it doesn't exist anymore
                         selected_dev = null;
-                        RescanDevices(); //remove it from the list
+                        RescanDevices(); //Remove the missing device from our lists
                         disp.Invoke(() =>
                         {
-                            //unselect then rescan automatically
+                            //Unselect whatever is selected
                             deviceselect.SelectedIndex = -1;
                         });
-                        //show an error
-                        System.Windows.Forms.MessageBox.Show("Device was disconnected.");
+                        //Show an error
+                        MessageBox.Show("Device was disconnected.");
                         continue;
                     }
 
                     //Now we have the state of the selected stick, we can use it to move the mouse.
                     //Values returned are 16 bit (0-65535). 
-
                     bool lmb = state.Buttons[0];
                     bool rmb = state.Buttons[1];
                     bool mmb = state.Buttons[2];
@@ -90,7 +122,6 @@ namespace JoystickMouseControl
                     //Update UI controls
                     disp.Invoke(() =>
                     {
-                        //debug.Text = string.Format("Raw values\nX:{0}\nY:{1}", state.X, state.Y);
                         horizontal_bar.Value = state.X;
                         vertical_bar.Value = state.Y;
                         lmb_indicator.Background = lmb ? new SolidColorBrush(Color.FromArgb(255, 6, 176, 37)) : SystemColors.ControlLightBrush;
@@ -137,28 +168,46 @@ namespace JoystickMouseControl
             var input = new DirectInput();
             var dev_instances = input.GetDevices(DeviceType.Joystick, DeviceEnumerationFlags.AttachedOnly);
 
+            //Populate the array
             devices.Clear();
             devices.AddRange(dev_instances);
 
+            //Add the names to the list of devices
             deviceselect.Items.Clear();
             foreach (DeviceInstance device in devices) { deviceselect.Items.Add(device.ProductName); }
         }
 
         private void deviceselect_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //update variables when choosing a device
+            //Update variables when choosing a device
             deviceselect_SelectedIndex = deviceselect.SelectedIndex;
             if (deviceselect_SelectedIndex != -1)
             {
+                //Grab and initialise the selected joystick
                 var instance = devices[deviceselect_SelectedIndex];
                 if (instance.InstanceGuid == Guid.Empty)
                 {
-                    System.Windows.Forms.MessageBox.Show("ERROR: Device instance GUID is empty.");
+                    MessageBox.Show("ERROR: Device instance GUID is empty.");
                     deviceselect.SelectedIndex = -1;
                     return;
                 }
                 selected_dev = new Joystick(input, instance.InstanceGuid);
                 selected_dev.Acquire();
+
+                //Update the listboxes in the control list to reflect the capabilities of the selected stick
+                foreach (UIElement thing in control_list.Children)
+                {
+                    DEBUG += "\n" + thing.GetType().ToString() + "\n";
+                    if (thing.GetType().ToString().Contains("ComboBox"))
+                    {
+                        ComboBox list = (ComboBox)thing;
+                        list.Items.Clear();
+                        for (int i = 1; i <= selected_dev.Capabilities.ButtonCount; i++)
+                        {
+                            list.Items.Add(i.ToString());
+                        }
+                    }
+                }
             }
         }
 
@@ -170,7 +219,6 @@ namespace JoystickMouseControl
             //I had never heard of a "bool?" until now.
             enable_movement = enable_movement_box.IsChecked.Value;
         }
-
         private void sensitivity_slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             sensitivity = sensitivity_slider.Value;
@@ -198,31 +246,30 @@ namespace JoystickMouseControl
         private const int MOUSEEVENTF_MIDDLEDOWN = 0x20;
         private const int MOUSEEVENTF_MIDDLEUP = 0x40;
 
-        bool lmb_prev;
-        bool mmb_prev;
-        bool rmb_prev;
-        public void SendMouseData(int X, int Y, bool lmb = false, bool rmb=false, bool mmb = false)
+        private bool lmb_prev;
+        private bool mmb_prev;
+        private bool rmb_prev;
+        public void SendMouseData(int X, int Y, bool lmb = false, bool rmb = false, bool mmb = false)
         {
+            int FLAGS = MOUSEEVENTF_MOVE; //Set the relative movement flag, otherwise the mouse will not move.
             //Perform OR operations to all the flags depending on the requested inputs
             //But only if an input has changed since last time (prevents flooding api with excess flags)
-            int FLAGS = MOUSEEVENTF_MOVE;
             if (lmb != lmb_prev)
             {
-                if (lmb) FLAGS |= MOUSEEVENTF_LEFTDOWN;
-                else FLAGS |= MOUSEEVENTF_LEFTUP;
-                lmb_prev = lmb;
-            }
-            if (mmb != mmb_prev)
-            {
-                if (mmb) FLAGS |= MOUSEEVENTF_MIDDLEDOWN;
-                else FLAGS |= MOUSEEVENTF_MIDDLEUP;
-                mmb_prev = mmb;
+                //The mismatch between lmb and lmb_prev indicates a change in state of lmb,
+                //So we need to set the flag to say whether the button is being released or held.
+                FLAGS |= lmb ? MOUSEEVENTF_LEFTDOWN : MOUSEEVENTF_LEFTUP;
+                lmb_prev = lmb; //Remember our action
             }
             if (rmb != rmb_prev)
             {
-                if (rmb) FLAGS |= MOUSEEVENTF_RIGHTDOWN;
-                else FLAGS |= MOUSEEVENTF_RIGHTUP;
+                FLAGS |= rmb ? MOUSEEVENTF_RIGHTDOWN : MOUSEEVENTF_RIGHTUP;
                 rmb_prev = rmb;
+            }
+            if (mmb != mmb_prev)
+            {
+                FLAGS |= mmb ? MOUSEEVENTF_MIDDLEDOWN : MOUSEEVENTF_MIDDLEUP;
+                mmb_prev = mmb;
             }
 
             mouse_event(FLAGS, X, Y, 0, 0);

@@ -37,5 +37,8 @@
             <TextBlock x:Name="rmb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="RMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>
         </Border>
         <Label Content="Mouse button indicators" HorizontalAlignment="Left" Margin="386,410,0,0" VerticalAlignment="Top"/>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="10,225,438,23">
+            <Grid x:Name="control_list" HorizontalAlignment="Left" Height="244" VerticalAlignment="Top" Width="148"/>
+        </ScrollViewer>
     </Grid>
 </Window>
