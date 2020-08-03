@@ -11,7 +11,7 @@
         <ProgressBar x:Name="horizontal_bar" HorizontalAlignment="Left" Height="62" Margin="74,144,0,0" VerticalAlignment="Top" Width="278" Maximum="65535"/>
         <ComboBox x:Name="deviceselect" HorizontalAlignment="Left" Margin="163,44,0,0" VerticalAlignment="Top" Width="177" SelectionChanged="deviceselect_SelectionChanged" RenderTransformOrigin="-0.033,0.318"/>
         <Button x:Name="scanbutton" Content="Scan for devices" HorizontalAlignment="Left" Margin="345,44,0,0" VerticalAlignment="Top" Width="100" Click="ScanButton_Click" RenderTransformOrigin="0.093,2.65" Height="22"/>
-        <TextBox x:Name="debug" HorizontalAlignment="Left" Height="149" Margin="371,130,0,0" TextWrapping="Wrap" Text="Awaiting connection..." VerticalAlignment="Top" Width="204" RenderTransformOrigin="0.825,0.221"/>
+        <TextBox x:Name="debug" HorizontalAlignment="Left" Height="149" Margin="371,103,0,0" TextWrapping="Wrap" Text="Awaiting connection..." VerticalAlignment="Top" Width="204" RenderTransformOrigin="0.825,0.221"/>
         <ProgressBar x:Name="vertical_bar" HorizontalAlignment="Left" Height="62" Margin="110,318,0,0" VerticalAlignment="Top" Width="218" Maximum="65535" RenderTransformOrigin="0.5,0.5">
             <ProgressBar.RenderTransform>
                 <TransformGroup>
@@ -24,21 +24,23 @@
         </ProgressBar>
         <Label Content="Horizontal" HorizontalAlignment="Left" Margin="167,107,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.237,-0.269" Width="149" FontSize="20"/>
         <Label Content="Vertical" HorizontalAlignment="Left" Margin="180,206,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.237,-0.269" Width="84" FontSize="20" Height="46"/>
-        <CheckBox x:Name="enable_control_box" Content="Enable Control" HorizontalAlignment="Left" Margin="404,343,0,0" VerticalAlignment="Top" Checked="enable_control_Change" Unchecked="enable_control_Change"/>
-        <Label Content="Sensitivity" HorizontalAlignment="Left" Margin="419,363,0,0" VerticalAlignment="Top"/>
-        <Slider x:Name="sensitivity_slider" HorizontalAlignment="Left" Margin="371,387,0,0" VerticalAlignment="Top" Width="167" ValueChanged="sensitivity_slider_ValueChanged" Maximum="3" Minimum="0.7" Value="1.5" TickPlacement="BottomRight" TickFrequency="0.5"/>
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="359,435,0,0" VerticalAlignment="Top" Width="60">
+        <CheckBox x:Name="enable_control_box" Content="Enable Control" HorizontalAlignment="Left" Margin="326,269,0,0" VerticalAlignment="Top" Checked="enable_control_Change" Unchecked="enable_control_Change" FontSize="15"/>
+        <Label Content="Sensitivity" HorizontalAlignment="Left" Margin="430,369,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.619,1.269"/>
+        <Slider x:Name="sensitivity_slider" HorizontalAlignment="Left" Margin="380,394,0,0" VerticalAlignment="Top" Width="167" ValueChanged="sensitivity_slider_ValueChanged" Maximum="3" Minimum="0.7" Value="1.5" TickPlacement="BottomRight" TickFrequency="0.5"/>
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="368,442,0,0" VerticalAlignment="Top" Width="60">
             <TextBlock x:Name="lmb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="LMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>
         </Border>
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="424,435,0,0" VerticalAlignment="Top" Width="60">
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="433,442,0,0" VerticalAlignment="Top" Width="60">
             <TextBlock x:Name="mmb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="MMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>
         </Border>
-        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="489,435,0,0" VerticalAlignment="Top" Width="60">
+        <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="498,442,0,0" VerticalAlignment="Top" Width="60">
             <TextBlock x:Name="rmb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="RMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>
         </Border>
-        <Label Content="Mouse button indicators" HorizontalAlignment="Left" Margin="386,410,0,0" VerticalAlignment="Top"/>
+        <Label Content="Mouse button indicators" HorizontalAlignment="Left" Margin="395,417,0,0" VerticalAlignment="Top"/>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="10,225,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150">
             <Grid x:Name="control_list" HorizontalAlignment="Left" Height="244" VerticalAlignment="Top" Width="148"/>
         </ScrollViewer>
+        <CheckBox x:Name="exponential_curve_box" Content="Use exponential curve&#xA;(Makes precise movements much easier)" HorizontalAlignment="Left" Margin="326,302,0,0" VerticalAlignment="Top" Checked="exponential_curve_Change" Unchecked="exponential_curve_Change" IsChecked="True"/>
+        <CheckBox x:Name="nightmare_mode_box" Content="Nightmare Mode&#xA;(Uses acceleration instead of velocity)" HorizontalAlignment="Left" Margin="326,338,0,0" VerticalAlignment="Top" Checked="nightmare_mode_Change" Unchecked="nightmare_mode_Change" Foreground="Red"/>
     </Grid>
 </Window>

@@ -179,15 +179,25 @@ namespace JoystickMouseControl
                     if (double.IsNaN(x)) x = 0;
                     if (double.IsNaN(x)) y = 0;
 
-                    //Exponential curve instead of linear
-                    const int JOY_MIN = -32768;
-                    const int JOY_MAX = 32768;
-                    double a = Math.Pow(Map(raw_x, JOY_MIN, JOY_MAX, -sensitivity, sensitivity), 2);
-                    if (raw_x >= 0) x += a;
-                    else x -= a;
-                    a = Math.Pow(Map(raw_y, JOY_MIN, JOY_MAX, -sensitivity, sensitivity), 2);
-                    if (raw_y >= 0) y += a;
-                    else y -= a;
+                    double sensitivity = nightmare_mode ? sensitivity_factor * 0.5 : sensitivity_factor; //In nightmare mode, decrease the sensitivity.
+                    if (use_exponential_curve)
+                    {
+                        //Exponential curve instead of linear
+                        const int JOY_MIN = -32768;
+                        const int JOY_MAX = 32768;
+                        double a = Math.Pow(Map(raw_x, JOY_MIN, JOY_MAX, -sensitivity, sensitivity), 2);
+                        if (raw_x >= 0) x += a;
+                        else x -= a;
+                        a = Math.Pow(Map(raw_y, JOY_MIN, JOY_MAX, -sensitivity, sensitivity), 2);
+                        if (raw_y >= 0) y += a;
+                        else y -= a;
+                    }
+                    else
+                    {
+                        //Masochism linear curve.
+                        x += raw_x / (10000 - sensitivity * 300);
+                        y += raw_y / (10000 - sensitivity * 300);
+                    }
 
                     //Debug, shows raw joystick data
                     disp.Invoke(() =>
@@ -195,11 +205,24 @@ namespace JoystickMouseControl
                         debug.Text = string.Format("Raw values\nX:{0}\nY:{1}\n\nraw_x:{2}\nraw_y:{3}\n\nx:{4}\ny:{5}", state.X, state.Y, raw_x, raw_y, x, y);
                     });
 
-                    //Get delta x and delta y from the whole numbers in x and y but leave the remainders behind. The remainders accumulate to make movement smoother
+                    //Get delta x and delta y from the whole numbers in x and y ... 
                     int dx = (int)x;
-                    x -= dx;
                     int dy = (int)y;
-                    y -= dy;
+                    if (!nightmare_mode)
+                    {
+                        // ... but leave the remainders behind. The remainders accumulate to make movement smoother
+                        x -= dx;
+                        y -= dy;
+                    }
+                    else
+                    {
+                        //Nightmare mode, values can accumulate.
+                        //Clamp the values so it doesn't get too insane.
+                        dx = Math.Max(-3, Math.Min(dx, 3));
+                        dy = Math.Max(-3, Math.Min(dy, 3));
+                        x = Math.Max(-3, Math.Min(x, 3));
+                        y = Math.Max(-3, Math.Min(y, 3));
+                    }
 
                     //Finally, send this data to Windows.
                     SendMouseData(dx, dy, lmb, rmb, mmb);
@@ -267,15 +290,28 @@ namespace JoystickMouseControl
 
         //Make the values of the options available to the thread
         bool enable_control = false;
-        double sensitivity = 1.5;
+        double sensitivity_factor = 1.5;
         private void enable_control_Change(object sender, RoutedEventArgs e)
         {
             //I had never heard of a "bool?" until now.
             enable_control = enable_control_box.IsChecked.Value;
         }
+
+        bool use_exponential_curve = true;
+        private void exponential_curve_Change(object sender, RoutedEventArgs e)
+        {
+            use_exponential_curve = exponential_curve_box.IsChecked.Value;
+        }
+
+        bool nightmare_mode = false;
+        private void nightmare_mode_Change(object sender, RoutedEventArgs e)
+        {
+            nightmare_mode = nightmare_mode_box.IsChecked.Value;
+        }
+
         private void sensitivity_slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            sensitivity = sensitivity_slider.Value;
+            sensitivity_factor = sensitivity_slider.Value;
         }
 
         //Saves the config then terminates the process
