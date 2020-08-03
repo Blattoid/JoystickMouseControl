@@ -31,7 +31,7 @@ namespace JoystickMouseControl
         readonly DirectInput input;
         readonly List<DeviceInstance> devices;
         Joystick selected_dev;
-        readonly int[] button_map = new int[] { -1, -1, -1, -1, -1 }; //-1 means unbound, 0 and greater is the index into the button array of joystick state
+        readonly int[] button_map = new int[] { -1, -1, -1, -1, -1, -1 }; //-1 means unbound, 0 and greater is the index into the button array of joystick state
 
         public MainWindow()
         {
@@ -42,8 +42,9 @@ namespace JoystickMouseControl
             input = new DirectInput();
 
             //Setup the control list
+            string[] tooltips = new string[] { "LMB", "RMB", "MMB", "Alt-Tab", "Copy", "Paste" };
             control_list.ShowGridLines = false;
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < tooltips.Length; i++)
             {
                 RowDefinition row = new RowDefinition { Height = GridLength.Auto };
                 control_list.RowDefinitions.Add(row);
@@ -54,8 +55,7 @@ namespace JoystickMouseControl
                 control_list.ColumnDefinitions.Add(new ColumnDefinition());
             }
             //Add the controls to each cell
-            string[] tooltips = new string[] { "LMB", "RMB", "MMB", "Alt-Tab", "Shift-\nAlt-Tab" };
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < tooltips.Length; i++)
             {
                 Label text = new Label { Content = tooltips[i] };
                 Grid.SetRow(text, i);
@@ -91,7 +91,7 @@ namespace JoystickMouseControl
             //Read the selected entry and determine which list was updated.
             ComboBox list = (ComboBox)sender;
             int option_id = (int)list.Tag;
-            int entry = list.SelectedIndex-1; //Subtract 1 to account for the "None" option
+            int entry = list.SelectedIndex - 1; //Subtract 1 to account for the "None" option
             button_map[option_id] = entry; //Update the button map
             //Copy the button map to settings. This is saved on program exit
             Properties.Settings.Default.button_map = button_map;
@@ -100,6 +100,9 @@ namespace JoystickMouseControl
         int deviceselect_SelectedIndex = -1;
         double x = 0;
         double y = 0;
+        bool alt_tab_prev = false;
+        bool copy_prev = false;
+        bool paste_prev = false;
         private void ThreadCode()
         {
             Random random = new Random();
@@ -141,11 +144,22 @@ namespace JoystickMouseControl
                     bool rmb = button_map[1] < 0 ? false : state.Buttons[button_map[1]];
                     bool mmb = button_map[2] < 0 ? false : state.Buttons[button_map[2]];
 
+                    //Process alt-tab, copy and paste buttons
+                    bool alt_tab = button_map[3] < 0 ? false : state.Buttons[button_map[3]];
+                    if (alt_tab == true && alt_tab != alt_tab_prev) System.Windows.Forms.SendKeys.SendWait("%{TAB}");
+                    alt_tab_prev = alt_tab;
+                    bool copy = button_map[4] < 0 ? false : state.Buttons[button_map[4]];
+                    if (copy == true && copy != copy_prev) System.Windows.Forms.SendKeys.SendWait("^c");
+                    copy_prev = copy;
+                    bool paste = button_map[5] < 0 ? false : state.Buttons[button_map[5]];
+                    if (paste == true && paste != paste_prev) System.Windows.Forms.SendKeys.SendWait("^v");
+                    paste_prev = paste;
+
                     //Update UI controls
                     disp.Invoke(() =>
                     {
-                        if (!enable_movement) //Some instructions once the joystick is selected
-                            debug.Text = "Connected.\n\nSetup button controls in the left panel, then enable mouse control when ready.";
+                        if (!enable_control) //Some instructions once the joystick is selected
+                            debug.Text = "Connected.\n\nSetup button controls in the left panel, then enable control when ready.";
 
                         horizontal_bar.Value = state.X;
                         vertical_bar.Value = state.Y;
@@ -155,7 +169,7 @@ namespace JoystickMouseControl
                     });
 
                     //Don't proceed with moving the mouse if the "Enable mouse control" box is not checked
-                    if (!enable_movement) continue;
+                    if (!enable_control) continue;
 
                     //Read raw x/y values (0 to 65535) and convert them to signed integers (-32768 to 32768)
                     double raw_x = state.X - (int)Math.Pow(2, 16) / 2;
@@ -229,7 +243,7 @@ namespace JoystickMouseControl
                         list.Items.Clear();
                         list.Items.Add("None");
                         if (should_reset_button_config) list.SelectedIndex = 0; //Automatically select none, but only on the first run.
-                        else list.SelectedIndex = button_map[(int)list.Tag]+1;
+                        else list.SelectedIndex = button_map[(int)list.Tag] + 1;
                         for (int i = 1; i <= selected_dev.Capabilities.ButtonCount; i++)
                         {
                             list.Items.Add(i.ToString());
@@ -241,12 +255,12 @@ namespace JoystickMouseControl
         }
 
         //Make the values of the options available to the thread
-        bool enable_movement = false;
+        bool enable_control = false;
         double sensitivity = 1000;
-        private void enable_movement_Checked(object sender, RoutedEventArgs e)
+        private void enable_control_Change(object sender, RoutedEventArgs e)
         {
             //I had never heard of a "bool?" until now.
-            enable_movement = enable_movement_box.IsChecked.Value;
+            enable_control = enable_control_box.IsChecked.Value;
         }
         private void sensitivity_slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
