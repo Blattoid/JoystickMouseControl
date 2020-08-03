@@ -175,9 +175,19 @@ namespace JoystickMouseControl
                     double raw_x = state.X - (int)Math.Pow(2, 16) / 2;
                     double raw_y = state.Y - (int)Math.Pow(2, 16) / 2;
 
-                    //Adjust for sensitivity. //TODO: Make this a logarithmic curve //TODO_2: Get good at mathematics
-                    x += raw_x / (10000 - sensitivity);
-                    y += raw_y / (10000 - sensitivity);
+                    //If x or y somehow become NaN, reset them.
+                    if (double.IsNaN(x)) x = 0;
+                    if (double.IsNaN(x)) y = 0;
+
+                    //Exponential curve instead of linear
+                    const int JOY_MIN = -32768;
+                    const int JOY_MAX = 32768;
+                    double a = Math.Pow(Map(raw_x, JOY_MIN, JOY_MAX, -sensitivity, sensitivity), 2);
+                    if (raw_x >= 0) x += a;
+                    else x -= a;
+                    a = Math.Pow(Map(raw_y, JOY_MIN, JOY_MAX, -sensitivity, sensitivity), 2);
+                    if (raw_y >= 0) y += a;
+                    else y -= a;
 
                     //Debug, shows raw joystick data
                     disp.Invoke(() =>
@@ -191,6 +201,7 @@ namespace JoystickMouseControl
                     int dy = (int)y;
                     y -= dy;
 
+                    //Finally, send this data to Windows.
                     SendMouseData(dx, dy, lmb, rmb, mmb);
                 }
             }
@@ -256,7 +267,7 @@ namespace JoystickMouseControl
 
         //Make the values of the options available to the thread
         bool enable_control = false;
-        double sensitivity = 1000;
+        double sensitivity = 1.5;
         private void enable_control_Change(object sender, RoutedEventArgs e)
         {
             //I had never heard of a "bool?" until now.
@@ -272,6 +283,12 @@ namespace JoystickMouseControl
         {
             Properties.Settings.Default.Save();
             Environment.Exit(0);
+        }
+
+        //Port of the Arduino's map function because it's so darn useful
+        double Map(double value, double fromSource, double toSource, double fromTarget, double toTarget)
+        {
+            return (value - fromSource) / (toSource - fromSource) * (toTarget - fromTarget) + fromTarget;
         }
 
         //Mouse movement code
