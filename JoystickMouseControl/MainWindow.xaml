@@ -31,7 +31,7 @@
             <TextBlock x:Name="lmb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="LMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>
         </Border>
         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="424,435,0,0" VerticalAlignment="Top" Width="60">
-            <TextBlock x:Name="Mb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="MMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>
+            <TextBlock x:Name="mmb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="MMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>
         </Border>
         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="489,435,0,0" VerticalAlignment="Top" Width="60">
             <TextBlock x:Name="rmb_indicator" HorizontalAlignment="Left" Margin="0" TextWrapping="Wrap" Text="RMB" VerticalAlignment="Top" FontSize="16" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Width="58" TextAlignment="Center"/>

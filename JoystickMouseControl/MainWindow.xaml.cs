@@ -84,18 +84,19 @@ namespace JoystickMouseControl
                     //Values returned are 16 bit (0-65535). 
 
                     bool lmb = state.Buttons[0];
-                    bool mmb = state.Buttons[1];
-                    bool rmb = state.Buttons[2];
+                    bool rmb = state.Buttons[1];
+                    bool mmb = state.Buttons[2];
+
                     //Update UI controls
-                    /*disp.Invoke(() =>
+                    disp.Invoke(() =>
                     {
                         //debug.Text = string.Format("Raw values\nX:{0}\nY:{1}", state.X, state.Y);
                         horizontal_bar.Value = state.X;
                         vertical_bar.Value = state.Y;
-                        
-                    });*/
-                    //TODO: Make indicators change colour
-                    //lmb_indicator.Background = lmb?Brush. //6,176,37
+                        lmb_indicator.Background = lmb ? new SolidColorBrush(Color.FromArgb(255, 6, 176, 37)) : SystemColors.ControlLightBrush;
+                        rmb_indicator.Background = rmb ? new SolidColorBrush(Color.FromArgb(255, 6, 176, 37)) : SystemColors.ControlLightBrush;
+                        mmb_indicator.Background = mmb ? new SolidColorBrush(Color.FromArgb(255, 6, 176, 37)) : SystemColors.ControlLightBrush;
+                    });
 
                     //Don't proceed with moving the mouse if the "Enable mouse control" box is not checked
                     if (!enable_movement) continue;
@@ -120,7 +121,7 @@ namespace JoystickMouseControl
                     int dy = (int)y;
                     y -= dy;
 
-                    SendMouseData(dx, dy);
+                    SendMouseData(dx, dy, lmb, rmb, mmb);
                 }
             }
         }
@@ -200,7 +201,7 @@ namespace JoystickMouseControl
         bool lmb_prev;
         bool mmb_prev;
         bool rmb_prev;
-        public void SendMouseData(int X, int Y, bool lmb = false, bool mmb = false, bool rmb = false)
+        public void SendMouseData(int X, int Y, bool lmb = false, bool rmb=false, bool mmb = false)
         {
             //Perform OR operations to all the flags depending on the requested inputs
             //But only if an input has changed since last time (prevents flooding api with excess flags)
