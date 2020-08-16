@@ -139,26 +139,29 @@ namespace JoystickMouseControl
                     //Now we have the state of the selected stick, we can use it to move the mouse.
                     //Values returned are 16 bit (0-65535). 
 
+                    if (enable_keyboard)
+                    {
+                        //Process alt-tab, copy and paste buttons
+                        bool alt_tab = button_map[3] < 0 ? false : state.Buttons[button_map[3]];
+                        if (alt_tab == true && alt_tab != alt_tab_prev) System.Windows.Forms.SendKeys.SendWait("%{TAB}");
+                        alt_tab_prev = alt_tab;
+                        bool copy = button_map[4] < 0 ? false : state.Buttons[button_map[4]];
+                        if (copy == true && copy != copy_prev) System.Windows.Forms.SendKeys.SendWait("^c");
+                        copy_prev = copy;
+                        bool paste = button_map[5] < 0 ? false : state.Buttons[button_map[5]];
+                        if (paste == true && paste != paste_prev) System.Windows.Forms.SendKeys.SendWait("^v");
+                        paste_prev = paste;
+                    }
+
                     //Read the joystick buttons according to the button map, but only if the stored value is greater than -1
                     bool lmb = button_map[0] < 0 ? false : state.Buttons[button_map[0]];
                     bool rmb = button_map[1] < 0 ? false : state.Buttons[button_map[1]];
                     bool mmb = button_map[2] < 0 ? false : state.Buttons[button_map[2]];
 
-                    //Process alt-tab, copy and paste buttons
-                    bool alt_tab = button_map[3] < 0 ? false : state.Buttons[button_map[3]];
-                    if (alt_tab == true && alt_tab != alt_tab_prev) System.Windows.Forms.SendKeys.SendWait("%{TAB}");
-                    alt_tab_prev = alt_tab;
-                    bool copy = button_map[4] < 0 ? false : state.Buttons[button_map[4]];
-                    if (copy == true && copy != copy_prev) System.Windows.Forms.SendKeys.SendWait("^c");
-                    copy_prev = copy;
-                    bool paste = button_map[5] < 0 ? false : state.Buttons[button_map[5]];
-                    if (paste == true && paste != paste_prev) System.Windows.Forms.SendKeys.SendWait("^v");
-                    paste_prev = paste;
-
                     //Update UI controls
                     disp.Invoke(() =>
                     {
-                        if (!enable_control) //Some instructions once the joystick is selected
+                        if (!enable_mouse || enable_keyboard) //Some instructions once the joystick is selected
                             debug.Text = "Connected.\n\nSetup button controls in the left panel, then enable control when ready.";
 
                         horizontal_bar.Value = state.X;
@@ -169,7 +172,7 @@ namespace JoystickMouseControl
                     });
 
                     //Don't proceed with moving the mouse if the "Enable mouse control" box is not checked
-                    if (!enable_control) continue;
+                    if (!enable_mouse) continue;
 
                     //Read raw x/y values (0 to 65535) and convert them to signed integers (-32768 to 32768)
                     double raw_x = state.X - (int)Math.Pow(2, 16) / 2;
@@ -289,12 +292,17 @@ namespace JoystickMouseControl
         }
 
         //Make the values of the options available to the thread
-        bool enable_control = false;
-        double sensitivity_factor = 1.5;
-        private void enable_control_Change(object sender, RoutedEventArgs e)
+        bool enable_mouse = false;
+        private void enable_mouse_Change(object sender, RoutedEventArgs e)
         {
             //I had never heard of a "bool?" until now.
-            enable_control = enable_control_box.IsChecked.Value;
+            enable_mouse = enable_mouse_box.IsChecked.Value;
+        }
+
+        bool enable_keyboard = false;
+        private void enable_keyboard_Change(object sender, RoutedEventArgs e)
+        {
+            enable_keyboard = enable_keyboard_box.IsChecked.Value;
         }
 
         bool use_exponential_curve = true;
@@ -309,6 +317,7 @@ namespace JoystickMouseControl
             nightmare_mode = nightmare_mode_box.IsChecked.Value;
         }
 
+        double sensitivity_factor = 1.5;
         private void sensitivity_slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             sensitivity_factor = sensitivity_slider.Value;

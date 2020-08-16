@@ -24,7 +24,7 @@
         </ProgressBar>
         <Label Content="Horizontal" HorizontalAlignment="Left" Margin="167,107,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.237,-0.269" Width="149" FontSize="20"/>
         <Label Content="Vertical" HorizontalAlignment="Left" Margin="180,206,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.237,-0.269" Width="84" FontSize="20" Height="46"/>
-        <CheckBox x:Name="enable_control_box" Content="Enable Control" HorizontalAlignment="Left" Margin="326,269,0,0" VerticalAlignment="Top" Checked="enable_control_Change" Unchecked="enable_control_Change" FontSize="15"/>
+        <CheckBox x:Name="enable_mouse_box" Content="Enable Mouse Control" HorizontalAlignment="Left" Margin="326,269,0,0" VerticalAlignment="Top" Checked="enable_mouse_Change" Unchecked="enable_mouse_Change" FontSize="15"/>
         <Label Content="Sensitivity" HorizontalAlignment="Left" Margin="430,369,0,0" VerticalAlignment="Top" RenderTransformOrigin="1.619,1.269"/>
         <Slider x:Name="sensitivity_slider" HorizontalAlignment="Left" Margin="380,394,0,0" VerticalAlignment="Top" Width="167" ValueChanged="sensitivity_slider_ValueChanged" Maximum="3" Minimum="0.7" Value="1.5" TickPlacement="BottomRight" TickFrequency="0.5"/>
         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="368,442,0,0" VerticalAlignment="Top" Width="60">
@@ -42,5 +42,6 @@
         </ScrollViewer>
         <CheckBox x:Name="exponential_curve_box" Content="Use exponential curve&#xA;(Makes precise movements much easier)" HorizontalAlignment="Left" Margin="326,302,0,0" VerticalAlignment="Top" Checked="exponential_curve_Change" Unchecked="exponential_curve_Change" IsChecked="True"/>
         <CheckBox x:Name="nightmare_mode_box" Content="Nightmare Mode&#xA;(Uses acceleration instead of velocity)" HorizontalAlignment="Left" Margin="326,338,0,0" VerticalAlignment="Top" Checked="nightmare_mode_Change" Unchecked="nightmare_mode_Change" Foreground="Red"/>
+        <CheckBox x:Name="enable_keyboard_box" Content="Enable Keyboard Control" HorizontalAlignment="Left" Margin="10,469,0,0" VerticalAlignment="Top" Checked="enable_keyboard_Change" Unchecked="enable_keyboard_Change" FontSize="15"/>
     </Grid>
 </Window>
